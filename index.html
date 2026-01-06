@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meu Site</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #4a90e2;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+    main {
+      padding: 20px;
+    }
+    footer {
+      background: #333;
+      color: white;
+      text-align: center;
+      padding: 10px;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Bem-vindo ao Meu Site</h1>
+  </header>
+
+  <main>
+    <h2>Seção Principal</h2>
+    <p>Este é um site de exemplo. Podemos expandir conforme suas necessidades!</p>
+  </main>
+
+  <footer>
+    <p>© 2026 Meu Site</p>
+  </footer>
+
+  <script>
+    // Lista de textos (adicione quantos quiser)
+    const textos = [
+      "Texto 1.",
+      "Texto 2.",
+      "Texto 3.",
+      "Texto 4.",
+      "Texto 5."
+    ];
+
+    // Carrega ou cria uma lista embaralhada
+    function obterListaEmbaralhada() {
+      let lista = localStorage.getItem("listaEmbaralhada");
+      let indice = localStorage.getItem("indiceLista");
+
+      if (!lista || !indice || indice >= JSON.parse(lista).length) {
+        // Recria a lista embaralhada
+        const novaLista = textos
+          .map((t, i) => ({ t, i }))
+          .sort(() => Math.random() - 0.5)
+          .map(obj => obj.i);
+
+        localStorage.setItem("listaEmbaralhada", JSON.stringify(novaLista));
+        localStorage.setItem("indiceLista", 0);
+        return { lista: novaLista, indice: 0 };
+      }
+
+      return { lista: JSON.parse(lista), indice: parseInt(indice) };
+    }
+
+    const { lista, indice } = obterListaEmbaralhada();
+
+    // Texto do dia baseado na ordem aleatória persistida
+    const textoHoje = textos[lista[indice]];
+
+    // Avança para o próximo dia
+    localStorage.setItem("indiceLista", indice + 1);
+
+    const main = document.querySelector('main');
+    const box = document.createElement('div');
+    box.innerHTML = `<h2>Texto do Dia</h2><p>${textoHoje}</p>`;
+    main.appendChild(box);
+  </script>
+</body>
+</html>
