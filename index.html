@@ -4,21 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meu Site</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
     }
+
     header {
       background: #4a90e2;
       padding: 20px;
       color: white;
       text-align: center;
     }
+
     main {
       padding: 20px;
     }
+
+    .texto-dia {
+      margin-top: 30px;
+      padding: 20px;
+      background: #f5f5f5;
+      border-left: 5px solid #4a90e2;
+    }
+
     footer {
       background: #333;
       color: white;
@@ -29,6 +40,7 @@
   </style>
 </head>
 <body>
+
   <header>
     <h1>Bem-vindo ao Meu Site</h1>
   </header>
@@ -43,7 +55,7 @@
   </footer>
 
   <script>
-    // Lista de textos (adicione quantos quiser)
+    // 👉 Textos disponíveis (adicione, remova ou edite)
     const textos = [
       "Texto 1.",
       "Texto 2.",
@@ -52,38 +64,30 @@
       "Texto 5."
     ];
 
-    // Carrega ou cria uma lista embaralhada
-    function obterListaEmbaralhada() {
-      let lista = localStorage.getItem("listaEmbaralhada");
-      let indice = localStorage.getItem("indiceLista");
-
-      if (!lista || !indice || indice >= JSON.parse(lista).length) {
-        // Recria a lista embaralhada
-        const novaLista = textos
-          .map((t, i) => ({ t, i }))
-          .sort(() => Math.random() - 0.5)
-          .map(obj => obj.i);
-
-        localStorage.setItem("listaEmbaralhada", JSON.stringify(novaLista));
-        localStorage.setItem("indiceLista", 0);
-        return { lista: novaLista, indice: 0 };
-      }
-
-      return { lista: JSON.parse(lista), indice: parseInt(indice) };
+    // Calcula um índice fixo baseado na data atual
+    function obterIndiceDoDia(total) {
+      const hoje = new Date();
+      const dataBase = new Date(2024, 0, 1); // referência fixa
+      const diffDias = Math.floor(
+        (hoje - dataBase) / (1000 * 60 * 60 * 24)
+      );
+      return diffDias % total;
     }
 
-    const { lista, indice } = obterListaEmbaralhada();
+    const indiceHoje = obterIndiceDoDia(textos.length);
+    const textoHoje = textos[indiceHoje];
 
-    // Texto do dia baseado na ordem aleatória persistida
-    const textoHoje = textos[lista[indice]];
+    const main = document.querySelector("main");
 
-    // Avança para o próximo dia
-    localStorage.setItem("indiceLista", indice + 1);
+    const box = document.createElement("div");
+    box.className = "texto-dia";
+    box.innerHTML = `
+      <h2>Texto do Dia</h2>
+      <p>${textoHoje}</p>
+    `;
 
-    const main = document.querySelector('main');
-    const box = document.createElement('div');
-    box.innerHTML = `<h2>Texto do Dia</h2><p>${textoHoje}</p>`;
     main.appendChild(box);
   </script>
+
 </body>
 </html>
