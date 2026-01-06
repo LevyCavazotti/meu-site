@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poemas Anteriores</title>
+
+  <!-- Fontes -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Crimson+Text&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #0f1115;
+      color: #e6e1d8;
+      font-family: "Crimson Text", serif;
+      line-height: 1.7;
+    }
+
+    header {
+      padding: 40px 20px;
+      text-align: center;
+      border-bottom: 1px solid #2a2d34;
+    }
+
+    header h1 {
+      font-family: "Playfair Display", serif;
+      font-weight: 600;
+      margin: 0;
+      color: #f2ede4;
+    }
+
+    header a {
+      display: inline-block;
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #8b6f47;
+      text-decoration: none;
+    }
+
+    main {
+      max-width: 720px;
+      margin: 50px auto;
+      padding: 0 20px;
+    }
+
+    .poema {
+      background: #161922;
+      padding: 30px;
+      margin-bottom: 30px;
+      border-left: 3px solid #8b6f47;
+      box-shadow: 0 0 15px rgba(0,0,0,0.35);
+    }
+
+    .data {
+      font-size: 0.85em;
+      color: #9c9487;
+      margin-bottom: 15px;
+      font-style: italic;
+    }
+
+    .poema p {
+      font-size: 1.1em;
+      margin: 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 0.85em;
+      color: #777064;
+      border-top: 1px solid #2a2d34;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Poemas Anteriores</h1>
+    <a href="index.html">← Voltar ao poema do dia</a>
+  </header>
+
+  <main id="lista-poemas"></main>
+
+  <footer>
+    © 2026 Todos os direitos reservados.
+  </footer>
+
+  <script>
+    const textos = [
+      "Quando eu estava com voce, implorava ao Tempo para que ele andasse devagar. Agora, eu insisto e clamo para que Ele corra o mais rápido possível. Porque sem voce, nao há sentido.",
+      "Ontem eu estava cheio. Hoje estou vazio",
+      "A lembranca do nao-dito, do nao-feito, do nao-amado. Oh! É tao terrível.",
+      "Eu to doente. Já fazem dias que eu tenho os sintomas... Nao consigo parar de pensar em voce, Nao me esqueco dos dias em que estávamos juntos E até mesmo nos meus sonhos voce veio me procurar... Eu to doente de amor por voce.",
+      "Eu escrevo para fugir. Eu escrevo para fingir. Eu escrevo para nao ter que enfrentar o mundo. Eu escrevo para poder entrar num lugar onde nao preciso ter vergonha. Eu escrevo para poder ser eu mesmo. Eu escrevo para poder mudar o mundo."
+    ];
+
+    const dataBase = new Date(2024, 0, 1);
+
+    function gerarOrdemEmbaralhada(total) {
+      const indices = [...Array(total).keys()];
+      let seed = 123456;
+
+      function random() {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+      }
+
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+
+      return indices;
+    }
+
+    const ordem = gerarOrdemEmbaralhada(textos.length);
+    const hoje = new Date();
+    const diffDias = Math.floor((hoje - dataBase) / (1000 * 60 * 60 * 24));
+    const totalDias = Math.min(diffDias, textos.length - 1);
+
+    const container = document.getElementById("lista-poemas");
+
+    for (let i = totalDias; i >= 0; i--) {
+      const dataPoema = new Date(dataBase);
+      dataPoema.setDate(dataBase.getDate() + i);
+
+      const indiceTexto = ordem[i % textos.length];
+      const texto = textos[indiceTexto];
+
+      const dataFormatada = dataPoema.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
+
+      const div = document.createElement("div");
+      div.className = "poema";
+      div.innerHTML = `
+        <div class="data">${dataFormatada}</div>
+        <p>${texto}</p>
+      `;
+
+      container.appendChild(div);
+    }
+  </script>
+
+</body>
+</html>
