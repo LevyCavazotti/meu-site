@@ -122,28 +122,28 @@
 
     const container = document.getElementById("lista-poemas");
 
-    for (let i = 0; i <= totalDias; i++) {
-      const dataPoema = new Date(dataBase);
-      dataPoema.setDate(dataBase.getDate() + i);
+for (let i = 0; i <= totalDias; i++) {
+  const dataPoema = new Date(dataBase);
+  dataPoema.setDate(dataBase.getDate() + i);
 
-      const indiceTexto = ordem[i % textos.length];
-      const texto = textos[indiceTexto];
+  const indiceTexto = ordem[i % textos.length];
+  const texto = textos[indiceTexto];
 
-      const dataFormatada = dataPoema.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-      });
+  const dataFormatada = dataPoema.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
 
-      const div = document.createElement("div");
-      div.className = "poema";
-      div.innerHTML = `
-        <div class="data">${dataFormatada}</div>
-        <p>${texto}</p>
-      `;
+  const div = document.createElement("div");
+  div.className = "poema";
+  div.innerHTML = `
+    <div class="data">${dataFormatada}</div>
+    <p>${texto}</p>
+  `;
 
-      container.appendChild(div);
-    }
+  container.appendChild(div);
+}
   </script>
 
 </body>
