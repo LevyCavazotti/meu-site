@@ -89,68 +89,58 @@
   </a>
 </footer>
 
-  <script>
-    // ✒️ Textos literários (adicione quantos quiser)
-    const
-    textos = [
-      "Quando eu estava com voce, implorava ao Tempo para que ele andasse devagar. Agora, eu insisto e clamo para que Ele corra o mais rápido possível. Porque sem voce, nao há sentido.",
-      "Ontem eu estava cheio. Hoje estou vazio.",
-      "A lembranca do nao-dito, do nao-feito, do nao-amado. Oh! É tao terrível. ",
-      "Eu to doente. Já fazem dias que eu tenho os sintomas... Nao consigo parar de pensar em voce, Nao me esqueco dos dias em que estávamos juntos E até mesmo nos meus sonhos voce veio me procurar... Eu to doente de amor por voce.",
-      "Eu escrevo para fugir. Eu escrevo para fingir. Eu escrevo para nao ter que enfrentar o mundo. Eu escrevo para poder entrar num lugar onde nao preciso ter vergonha. Eu escrevo para poder ser eu mesmo. Eu escrevo para poder mudar o mundo."
-    ];
+<script>
+  // Carrega poemas do arquivo JSON
+  fetch("data/poemas.json")
+    .then(res => res.json())
+    .then(db => {
+      const textos = db.poemas.map(p => p.texto);
 
-    // Data base fixa (não mude depois de publicar)
-    const dataBase = new Date(2024, 0, 1);
+      const dataBase = new Date(2024, 0, 1);
 
-    // Gera uma ordem embaralhada SEM repetir (seed fixa)
-    function gerarOrdemEmbaralhada(total) {
-      const indices = [...Array(total).keys()];
-
-      let seed = 123456; // seed fixa = mesma ordem para todos
-      function random() {
-        seed = (seed * 16807) % 2147483647;
-        return (seed - 1) / 2147483646;
+      function gerarOrdemEmbaralhada(total) {
+        const indices = [...Array(total).keys()];
+        let seed = 123456;
+        function random() {
+          seed = (seed * 16807) % 2147483647;
+          return (seed - 1) / 2147483646;
+        }
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        return indices;
       }
 
-      for (let i = indices.length - 1; i > 0; i--) {
-        const j = Math.floor(random() * (i + 1));
-        [indices[i], indices[j]] = [indices[j], indices[i]];
-      }
+      const ordem = gerarOrdemEmbaralhada(textos.length);
 
-      return indices;
-    }
+      const hoje = new Date();
+      const diffDias = Math.floor(
+        (hoje - dataBase) / (1000 * 60 * 60 * 24)
+      );
 
-    const ordem = gerarOrdemEmbaralhada(textos.length);
+      const indiceHoje = ordem[diffDias % textos.length];
+      const textoHoje = textos[indiceHoje];
 
-    // Calcula o dia atual relativo à data base
-    const hoje = new Date();
-    const diffDias = Math.floor(
-      (hoje - dataBase) / (1000 * 60 * 60 * 24)
-    );
+      const dataFormatada = hoje.toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
 
-    const indiceHoje = ordem[diffDias % textos.length];
-    const textoHoje = textos[indiceHoje];
+      const main = document.querySelector("main");
 
-    // Formata data bonita
-    const dataFormatada = hoje.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric"
+      const box = document.createElement("div");
+      box.className = "texto-dia";
+      box.innerHTML = `
+        <h2>Poema do Dia</h2>
+        <div class="data">${dataFormatada}</div>
+        <p>${textoHoje}</p>
+      `;
+
+      main.appendChild(box);
     });
-
-    const main = document.querySelector("main");
-
-    const box = document.createElement("div");
-    box.className = "texto-dia";
-    box.innerHTML = `
-      <h2>Poema do Dia</h2>
-      <div class="data">${dataFormatada}</div>
-      <p>${textoHoje}</p>
-    `;
-
-    main.appendChild(box);
-  </script>
+</script>
   
 </body>
 </html>
