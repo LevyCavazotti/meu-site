@@ -122,7 +122,7 @@
 
     const container = document.getElementById("lista-poemas");
 
-    for (let i = totalDias; i >= 0; i--) {
+    for (let i = 0; i <= totalDias; i++) {
       const dataPoema = new Date(dataBase);
       dataPoema.setDate(dataBase.getDate() + i);
 
