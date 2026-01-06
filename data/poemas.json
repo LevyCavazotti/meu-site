@@ -1,0 +1,24 @@
+{
+  "poemas": [
+    {
+      "id": 1,
+      "texto": "Quando eu estava com voce, implorava ao Tempo para que ele andasse devagar. Agora, eu insisto e clamo para que Ele corra o mais rápido possível. Porque sem voce, nao há sentido."
+    },
+    {
+      "id": 2,
+      "texto": "Ontem eu estava cheio. Hoje estou vazio."
+    },
+    {
+      "id": 3,
+      "texto": "A lembrança do nao-dito, do nao-feito, do nao-amado. Oh! É tao terrível."
+    },
+    {
+      "id": 4,
+      "texto": "Eu to doente. Já fazem dias que eu tenho os sintomas... Nao consigo parar de pensar em voce..."
+    },
+    {
+      "id": 5,
+      "texto": "Eu escrevo para fugir. Eu escrevo para fingir. Eu escrevo para nao ter que enfrentar o mundo..."
+    }
+  ]
+}
