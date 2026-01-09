@@ -90,12 +90,25 @@
 </footer>
 
 <script>
+  function normalizarData(data) {
+    return new Date(data.getFullYear(), data.getMonth(), data.getDate());
+  }
+
   fetch("data/poemas.json")
     .then(res => res.json())
     .then(db => {
       const textos = db.poemas.map(p => p.texto);
 
-      const hoje = new Date();
+      // 🔴 MUDE AQUI QUANDO FOR LANÇAR
+      const dataLancamento = new Date(2026, 0, 10); // 10 de janeiro de 2026
+
+      const hoje = normalizarData(new Date());
+      const inicio = normalizarData(dataLancamento);
+
+      const diffDias = Math.max(
+        0,
+        Math.floor((hoje - inicio) / (1000 * 60 * 60 * 24))
+      );
 
       function indicePoemaPorData(data, total) {
         const seed =
@@ -106,10 +119,18 @@
         return seed % total;
       }
 
-      const indice = indicePoemaPorData(hoje, textos.length);
-      const textoHoje = textos[indice];
+      let textoHoje;
 
-      const dataFormatada = hoje.toLocaleDateString("pt-BR", {
+      if (hoje < inicio) {
+        textoHoje = "O projeto começa em breve.";
+      } else {
+        const indice = indicePoemaPorData(hoje, textos.length);
+        textoHoje = textos[indice];
+      }
+
+      const dataExibida = hoje < inicio ? inicio : hoje;
+
+      const dataFormatada = dataExibida.toLocaleDateString("pt-BR", {
         day: "2-digit",
         month: "long",
         year: "numeric"
