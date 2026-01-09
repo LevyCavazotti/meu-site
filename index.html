@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sua Dose Diária de Poesia</title>
 
-  <!-- Fonte literária -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Crimson+Text&display=swap" rel="stylesheet">
 
   <style>
@@ -26,10 +25,16 @@
 
     header h1 {
       font-family: "Playfair Display", serif;
-      font-weight: 600;
-      letter-spacing: 1px;
       margin: 0;
       color: #f2ede4;
+    }
+
+    select {
+      margin-top: 15px;
+      background: #0f1115;
+      color: #e6e1d8;
+      border: 1px solid #2a2d34;
+      font-family: inherit;
     }
 
     main {
@@ -45,23 +50,10 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
 
-    .texto-dia h2 {
-      font-family: "Playfair Display", serif;
-      font-weight: 400;
-      margin-top: 0;
-      color: #d6c9b5;
-      letter-spacing: 0.5px;
-    }
-
     .data {
-      font-size: 0.9em;
+      font-style: italic;
       color: #9c9487;
       margin-bottom: 25px;
-      font-style: italic;
-    }
-
-    .texto-dia p {
-      font-size: 1.15em;
     }
 
     footer {
@@ -71,63 +63,90 @@
       color: #777064;
       border-top: 1px solid #2a2d34;
     }
+
+    footer a {
+      color: #8b6f47;
+      text-decoration: none;
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Sua Dose Diária de Poesia</h1>
-  </header>
+<header>
+  <h1>Sua Dose Diária de Poesia</h1>
 
-  <main></main>
+  <select id="idioma">
+    <option value="pt">Português</option>
+    <option value="en">English</option>
+  </select>
+</header>
 
-  <footer>
+<main></main>
+
+<footer>
   © 2026 Todos os direitos reservados.<br><br>
-
-  <a href="arquivo.html" style="color:#8b6f47; text-decoration:none;">
-    Ler poemas anteriores
-  </a>
+  <a href="arquivo.html" id="link-anteriores">Ler poemas anteriores</a>
 </footer>
 
 <script>
+  const DATA_INICIO = new Date(2026, 0, 1);
+  const idioma = localStorage.getItem("idioma") || "pt";
+
+  const UI = {
+    pt: {
+      titulo: "Poema do Dia",
+      anteriores: "Ler poemas anteriores"
+    },
+    en: {
+      titulo: "Poem of the Day",
+      anteriores: "Read previous poems"
+    }
+  };
+
+  document.getElementById("idioma").value = idioma;
+  document.getElementById("idioma").addEventListener("change", e => {
+    localStorage.setItem("idioma", e.target.value);
+    location.reload();
+  });
+
   fetch("data/poemas.json")
     .then(res => res.json())
     .then(db => {
-      const textos = db.poemas.map(p => p.texto);
+      const textos = db[idioma].poemas.map(p => p.texto);
 
-      const hoje = new Date();
+      const hojeReal = new Date();
+      const hoje = hojeReal < DATA_INICIO ? DATA_INICIO : hojeReal;
 
       function indicePoemaPorData(data, total) {
         const seed =
           data.getFullYear() * 10000 +
           (data.getMonth() + 1) * 100 +
           data.getDate();
-
         return seed % total;
       }
 
       const indice = indicePoemaPorData(hoje, textos.length);
       const textoHoje = textos[indice];
 
-      const dataFormatada = hoje.toLocaleDateString("pt-BR", {
+      const dataFormatada = hoje.toLocaleDateString(idioma, {
         day: "2-digit",
         month: "long",
         year: "numeric"
       });
 
+      document.getElementById("link-anteriores").textContent =
+        UI[idioma].anteriores;
+
       const main = document.querySelector("main");
-
-      const box = document.createElement("div");
-      box.className = "texto-dia";
-      box.innerHTML = `
-        <h2>Poema do Dia</h2>
-        <div class="data">${dataFormatada}</div>
-        <p>${textoHoje}</p>
+      main.innerHTML = `
+        <div class="texto-dia">
+          <h2>${UI[idioma].titulo}</h2>
+          <div class="data">${dataFormatada}</div>
+          <p>${textoHoje}</p>
+        </div>
       `;
-
-      main.appendChild(box);
     });
 </script>
-  
+
 </body>
 </html>
