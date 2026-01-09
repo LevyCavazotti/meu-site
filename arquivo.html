@@ -87,45 +87,38 @@
     © 2026 Todos os direitos reservados.
   </footer>
 
- <script>
+<script>
   fetch("data/poemas.json")
     .then(res => res.json())
     .then(db => {
-
       const textos = db.poemas.map(p => p.texto);
+
       const dataBase = new Date(2024, 0, 1);
-
-      function gerarOrdemEmbaralhada(total) {
-        const indices = [...Array(total).keys()];
-        let seed = 123456;
-        function random() {
-          seed = (seed * 16807) % 2147483647;
-          return (seed - 1) / 2147483646;
-        }
-        for (let i = indices.length - 1; i > 0; i--) {
-          const j = Math.floor(random() * (i + 1));
-          [indices[i], indices[j]] = [indices[j], indices[i]];
-        }
-        return indices;
-      }
-
-      const ordem = gerarOrdemEmbaralhada(textos.length);
-
       const hoje = new Date();
-      const diffDias = Math.floor((hoje - dataBase) / (1000 * 60 * 60 * 24));
 
-      const ultimoDiaDisponivel = Math.min(diffDias, textos.length - 1);
+      function indicePoemaPorData(data, total) {
+        const seed =
+          data.getFullYear() * 10000 +
+          (data.getMonth() + 1) * 100 +
+          data.getDate();
+
+        return seed % total;
+      }
 
       const container = document.getElementById("lista-poemas");
 
-      for (let dia = ultimoDiaDisponivel; dia >= 0; dia--) {
-        const dataPoema = new Date(dataBase);
-        dataPoema.setDate(dataBase.getDate() + dia);
+      const totalDias = Math.floor(
+        (hoje - dataBase) / (1000 * 60 * 60 * 24)
+      );
 
-        const indiceTexto = ordem[dia];
-        const texto = textos[indiceTexto];
+      for (let i = totalDias; i >= 0; i--) {
+        const data = new Date(dataBase);
+        data.setDate(dataBase.getDate() + i);
 
-        const dataFormatada = dataPoema.toLocaleDateString("pt-BR", {
+        const indice = indicePoemaPorData(data, textos.length);
+        const texto = textos[indice];
+
+        const dataFormatada = data.toLocaleDateString("pt-BR", {
           day: "2-digit",
           month: "long",
           year: "numeric"
