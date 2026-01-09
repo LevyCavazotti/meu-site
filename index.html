@@ -90,37 +90,24 @@
 </footer>
 
 <script>
-  // Carrega poemas do arquivo JSON
   fetch("data/poemas.json")
     .then(res => res.json())
     .then(db => {
       const textos = db.poemas.map(p => p.texto);
 
-      const dataBase = new Date(2024, 0, 1);
+      const hoje = new Date();
 
-      function gerarOrdemEmbaralhada(total) {
-        const indices = [...Array(total).keys()];
-        let seed = 123456;
-        function random() {
-          seed = (seed * 16807) % 2147483647;
-          return (seed - 1) / 2147483646;
-        }
-        for (let i = indices.length - 1; i > 0; i--) {
-          const j = Math.floor(random() * (i + 1));
-          [indices[i], indices[j]] = [indices[j], indices[i]];
-        }
-        return indices;
+      function indicePoemaPorData(data, total) {
+        const seed =
+          data.getFullYear() * 10000 +
+          (data.getMonth() + 1) * 100 +
+          data.getDate();
+
+        return seed % total;
       }
 
-      const ordem = gerarOrdemEmbaralhada(textos.length);
-
-      const hoje = new Date();
-      const diffDias = Math.floor(
-        (hoje - dataBase) / (1000 * 60 * 60 * 24)
-      );
-
-      const indiceHoje = ordem[diffDias % textos.length];
-      const textoHoje = textos[indiceHoje];
+      const indice = indicePoemaPorData(hoje, textos.length);
+      const textoHoje = textos[indice];
 
       const dataFormatada = hoje.toLocaleDateString("pt-BR", {
         day: "2-digit",
