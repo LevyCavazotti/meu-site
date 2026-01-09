@@ -5,17 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Poemas Anteriores</title>
 
-  <!-- Fontes -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Crimson+Text&display=swap" rel="stylesheet">
 
   <style>
     body {
       margin: 0;
-      padding: 0;
       background: #0f1115;
       color: #e6e1d8;
       font-family: "Crimson Text", serif;
-      line-height: 1.7;
     }
 
     header {
@@ -24,19 +21,12 @@
       border-bottom: 1px solid #2a2d34;
     }
 
-    header h1 {
-      font-family: "Playfair Display", serif;
-      font-weight: 600;
-      margin: 0;
-      color: #f2ede4;
-    }
-
-    header a {
-      display: inline-block;
+    select {
       margin-top: 15px;
-      font-size: 0.9em;
-      color: #8b6f47;
-      text-decoration: none;
+      background: #0f1115;
+      color: #e6e1d8;
+      border: 1px solid #2a2d34;
+      font-family: inherit;
     }
 
     main {
@@ -50,75 +40,76 @@
       padding: 30px;
       margin-bottom: 30px;
       border-left: 3px solid #8b6f47;
-      box-shadow: 0 0 15px rgba(0,0,0,0.35);
     }
 
     .data {
-      font-size: 0.85em;
+      font-style: italic;
       color: #9c9487;
       margin-bottom: 15px;
-      font-style: italic;
-    }
-
-    .poema p {
-      font-size: 1.1em;
-      margin: 0;
-    }
-
-    footer {
-      text-align: center;
-      padding: 30px 20px;
-      font-size: 0.85em;
-      color: #777064;
-      border-top: 1px solid #2a2d34;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>Poemas Anteriores</h1>
-    <a href="index.html">← Voltar ao poema do dia</a>
-  </header>
+<header>
+  <h1 id="titulo">Poemas Anteriores</h1>
 
-  <main id="lista-poemas"></main>
+  <select id="idioma">
+    <option value="pt">Português</option>
+    <option value="en">English</option>
+  </select>
 
-  <footer>
-    © 2026 Todos os direitos reservados.
-  </footer>
+  <br><br>
+  <a href="index.html" style="color:#8b6f47;">← Voltar</a>
+</header>
+
+<main id="lista-poemas"></main>
 
 <script>
+  const DATA_INICIO = new Date(2026, 0, 1);
+  const idioma = localStorage.getItem("idioma") || "pt";
+
+  const UI = {
+    pt: { titulo: "Poemas Anteriores" },
+    en: { titulo: "Previous Poems" }
+  };
+
+  document.getElementById("idioma").value = idioma;
+  document.getElementById("idioma").addEventListener("change", e => {
+    localStorage.setItem("idioma", e.target.value);
+    location.reload();
+  });
+
+  document.getElementById("titulo").textContent = UI[idioma].titulo;
+
   fetch("data/poemas.json")
     .then(res => res.json())
     .then(db => {
-      const textos = db.poemas.map(p => p.texto);
+      const textos = db[idioma].poemas.map(p => p.texto);
 
-      const dataBase = new Date(2024, 0, 1);
       const hoje = new Date();
+      const totalDias = Math.max(
+        0,
+        Math.floor((hoje - DATA_INICIO) / (1000 * 60 * 60 * 24))
+      );
 
       function indicePoemaPorData(data, total) {
         const seed =
           data.getFullYear() * 10000 +
           (data.getMonth() + 1) * 100 +
           data.getDate();
-
         return seed % total;
       }
 
       const container = document.getElementById("lista-poemas");
 
-      const totalDias = Math.floor(
-        (hoje - dataBase) / (1000 * 60 * 60 * 24)
-      );
-
       for (let i = totalDias; i >= 0; i--) {
-        const data = new Date(dataBase);
-        data.setDate(dataBase.getDate() + i);
+        const data = new Date(DATA_INICIO);
+        data.setDate(DATA_INICIO.getDate() + i);
 
         const indice = indicePoemaPorData(data, textos.length);
-        const texto = textos[indice];
 
-        const dataFormatada = data.toLocaleDateString("pt-BR", {
+        const dataFormatada = data.toLocaleDateString(idioma, {
           day: "2-digit",
           month: "long",
           year: "numeric"
@@ -128,7 +119,7 @@
         div.className = "poema";
         div.innerHTML = `
           <div class="data">${dataFormatada}</div>
-          <p>${texto}</p>
+          <p>${textos[indice]}</p>
         `;
 
         container.appendChild(div);
