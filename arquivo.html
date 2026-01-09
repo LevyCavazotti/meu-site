@@ -88,26 +88,13 @@
   </footer>
 
 <script>
-<script>
-  function normalizarData(data) {
-    return new Date(data.getFullYear(), data.getMonth(), data.getDate());
-  }
-
   fetch("data/poemas.json")
     .then(res => res.json())
     .then(db => {
       const textos = db.poemas.map(p => p.texto);
 
-      // 🔴 MESMA DATA DO index.html
-      const dataLancamento = new Date(2026, 0, 10); // 10 de janeiro de 2026
-
-      const hoje = normalizarData(new Date());
-      const inicio = normalizarData(dataLancamento);
-
-      const totalDias = Math.max(
-        0,
-        Math.floor((hoje - inicio) / (1000 * 60 * 60 * 24))
-      );
+      const dataBase = new Date(2024, 0, 1);
+      const hoje = new Date();
 
       function indicePoemaPorData(data, total) {
         const seed =
@@ -120,9 +107,13 @@
 
       const container = document.getElementById("lista-poemas");
 
+      const totalDias = Math.floor(
+        (hoje - dataBase) / (1000 * 60 * 60 * 24)
+      );
+
       for (let i = totalDias; i >= 0; i--) {
-        const data = new Date(inicio);
-        data.setDate(inicio.getDate() + i);
+        const data = new Date(dataBase);
+        data.setDate(dataBase.getDate() + i);
 
         const indice = indicePoemaPorData(data, textos.length);
         const texto = textos[indice];
