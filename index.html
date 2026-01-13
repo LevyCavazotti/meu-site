@@ -2,25 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-
-  <!-- DETECÇÃO AUTOMÁTICA DE IDIOMA -->
-  <script>
-    (function () {
-      const idioma = navigator.language
-        ? navigator.language.substring(0, 2)
-        : "pt";
-
-      const permitidos = ["en", "es", "fr", "it", "de"];
-
-      if (permitidos.includes(idioma)) {
-        document.cookie =
-          "googtrans=/pt/" + idioma + ";path=/;max-age=31536000";
-      }
-    })();
-  </script>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sua Dose Diária de Poesia</title>
+  <title id="page-title"></title>
 
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Crimson+Text&display=swap" rel="stylesheet">
 
@@ -45,22 +28,12 @@
       color: #f2ede4;
     }
 
-    #google_translate_element {
+    select {
       margin-top: 15px;
-    }
-
-    .goog-te-gadget,
-    .goog-logo-link,
-    .goog-te-gadget span {
-      display: none !important;
-    }
-
-    .goog-te-combo {
       background: #0f1115;
       color: #e6e1d8;
       border: 1px solid #2a2d34;
-      padding: 4px 6px;
-      font-size: 0.85em;
+      font-family: inherit;
     }
 
     main {
@@ -73,6 +46,7 @@
       background: #161922;
       padding: 40px;
       border-left: 4px solid #8b6f47;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
 
     .data {
@@ -83,8 +57,8 @@
 
     footer {
       text-align: center;
-      padding: 30px;
-      font-size: 0.8em;
+      padding: 30px 20px;
+      font-size: 0.85em;
       color: #777064;
       border-top: 1px solid #2a2d34;
     }
@@ -98,54 +72,85 @@
 <body>
 
 <header>
-  <h1>Sua Dose Diária de Poesia</h1>
-  <div id="google_translate_element"></div>
+  <h1 id="site-title"></h1>
+
+  <select id="idioma">
+    <option value="pt">Português</option>
+    <option value="en">English</option>
+  </select>
 </header>
 
 <main></main>
 
 <footer>
-  © 2026 Todos os direitos reservados.<br><br>
-  <a href="arquivo.html">Ler poemas anteriores</a><br><br>
-  Traduções automáticas via Google Tradutor
+  <span id="copyright"></span><br><br>
+  <a href="arquivo.html" id="link-anteriores"></a>
 </footer>
 
 <script>
   const DATA_INICIO = new Date(2026, 0, 1);
+  const idioma = localStorage.getItem("idioma") || "pt";
+
+  const UI = {
+    pt: {
+      pageTitle: "Sua Dose Diária de Poesia",
+      siteTitle: "Sua Dose Diária de Poesia",
+      poemaDoDia: "Poema do Dia",
+      anteriores: "Ler poemas anteriores",
+      copyright: "© 2026 Todos os direitos reservados.",
+      fallback: "Poema indisponível."
+    },
+    en: {
+      pageTitle: "Your Daily Dose of Poetry",
+      siteTitle: "Your Daily Dose of Poetry",
+      poemaDoDia: "Poem of the Day",
+      anteriores: "Read previous poems",
+      copyright: "© 2026 All rights reserved.",
+      fallback: "Poem unavailable."
+    }
+  };
+
+  // aplicar textos da interface
+  document.getElementById("page-title").textContent = UI[idioma].pageTitle;
+  document.getElementById("site-title").textContent = UI[idioma].siteTitle;
+  document.getElementById("link-anteriores").textContent = UI[idioma].anteriores;
+  document.getElementById("copyright").textContent = UI[idioma].copyright;
+
+  document.getElementById("idioma").value = idioma;
+  document.getElementById("idioma").addEventListener("change", e => {
+    localStorage.setItem("idioma", e.target.value);
+    location.reload();
+  });
 
   fetch("data/poemas.json")
-    .then(r => r.json())
+    .then(res => res.json())
     .then(db => {
       const hojeReal = new Date();
       const hoje = hojeReal < DATA_INICIO ? DATA_INICIO : hojeReal;
 
-      const dia = Math.floor(
-        (hoje - DATA_INICIO) / (1000 * 60 * 60 * 24)
+      const numeroDia = Math.max(
+        0,
+        Math.floor((hoje - DATA_INICIO) / (1000 * 60 * 60 * 24))
       );
 
-      const poema = db.dias[dia] || db.dias[db.dias.length - 1];
+      const item = db.dias[numeroDia % db.dias.length];
+      const texto = item[idioma] || item.pt || UI[idioma].fallback;
+
+      const dataFormatada = hoje.toLocaleDateString(idioma, {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      });
 
       document.querySelector("main").innerHTML = `
         <div class="texto-dia">
-          <h2>Poema do Dia</h2>
-          <div class="data">
-            ${hoje.toLocaleDateString("pt-BR", { day:"2-digit", month:"long", year:"numeric" })}
-          </div>
-          <p>${poema.pt}</p>
+          <h2>${UI[idioma].poemaDoDia}</h2>
+          <div class="data">${dataFormatada}</div>
+          <p>${texto}</p>
         </div>
       `;
     });
 </script>
-
-<script>
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement(
-      { pageLanguage: 'pt', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
-      'google_translate_element'
-    );
-  }
-</script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
 </html>
