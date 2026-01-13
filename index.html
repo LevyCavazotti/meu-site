@@ -2,6 +2,23 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+
+  <!-- DETECÇÃO AUTOMÁTICA DE IDIOMA -->
+  <script>
+    (function () {
+      const idioma = navigator.language
+        ? navigator.language.substring(0, 2)
+        : "pt";
+
+      const permitidos = ["en", "es", "fr", "it", "de"];
+
+      if (permitidos.includes(idioma)) {
+        document.cookie =
+          "googtrans=/pt/" + idioma + ";path=/;max-age=31536000";
+      }
+    })();
+  </script>
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sua Dose Diária de Poesia</title>
 
@@ -20,7 +37,6 @@
       padding: 40px 20px;
       text-align: center;
       border-bottom: 1px solid #2a2d34;
-      position: relative;
     }
 
     header h1 {
@@ -29,13 +45,14 @@
       color: #f2ede4;
     }
 
-    /* Botão Google Tradutor */
     #google_translate_element {
       margin-top: 15px;
     }
 
-    .goog-te-gadget {
-      color: transparent !important;
+    .goog-te-gadget,
+    .goog-logo-link,
+    .goog-te-gadget span {
+      display: none !important;
     }
 
     .goog-te-combo {
@@ -43,13 +60,7 @@
       color: #e6e1d8;
       border: 1px solid #2a2d34;
       padding: 4px 6px;
-      font-family: inherit;
       font-size: 0.85em;
-    }
-
-    .goog-logo-link,
-    .goog-te-gadget span {
-      display: none !important;
     }
 
     main {
@@ -62,7 +73,6 @@
       background: #161922;
       padding: 40px;
       border-left: 4px solid #8b6f47;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
 
     .data {
@@ -73,7 +83,7 @@
 
     footer {
       text-align: center;
-      padding: 30px 20px;
+      padding: 30px;
       font-size: 0.8em;
       color: #777064;
       border-top: 1px solid #2a2d34;
@@ -89,8 +99,6 @@
 
 <header>
   <h1>Sua Dose Diária de Poesia</h1>
-
-  <!-- Google Translate -->
   <div id="google_translate_element"></div>
 </header>
 
@@ -99,69 +107,40 @@
 <footer>
   © 2026 Todos os direitos reservados.<br><br>
   <a href="arquivo.html">Ler poemas anteriores</a><br><br>
-  <span style="font-size:0.75em;">
-    Traduções automáticas via Google Tradutor.
-  </span>
+  Traduções automáticas via Google Tradutor
 </footer>
 
 <script>
   const DATA_INICIO = new Date(2026, 0, 1);
 
   fetch("data/poemas.json")
-    .then(res => res.json())
+    .then(r => r.json())
     .then(db => {
       const hojeReal = new Date();
       const hoje = hojeReal < DATA_INICIO ? DATA_INICIO : hojeReal;
 
-      const numeroDia = Math.max(
-        0,
-        Math.floor((hoje - DATA_INICIO) / (1000 * 60 * 60 * 24))
+      const dia = Math.floor(
+        (hoje - DATA_INICIO) / (1000 * 60 * 60 * 24)
       );
 
-      const item = db.dias[numeroDia % db.dias.length];
-      const texto = item.pt || "Poema indisponível.";
-
-      const dataFormatada = hoje.toLocaleDateString("pt-BR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric"
-      });
+      const poema = db.dias[dia] || db.dias[db.dias.length - 1];
 
       document.querySelector("main").innerHTML = `
         <div class="texto-dia">
           <h2>Poema do Dia</h2>
-          <div class="data">${dataFormatada}</div>
-          <p>${texto}</p>
+          <div class="data">
+            ${hoje.toLocaleDateString("pt-BR", { day:"2-digit", month:"long", year:"numeric" })}
+          </div>
+          <p>${poema.pt}</p>
         </div>
       `;
     });
 </script>
-  
-<script>
-  // Detecta idioma do navegador (ex: en-US → en)
-  const idiomaNavegador = navigator.language
-    ? navigator.language.substring(0, 2)
-    : "pt";
 
-  // Idiomas que você permite no site
-  const idiomasPermitidos = ["en", "es", "fr", "it", "de"];
-
-  // Se o idioma do usuário for diferente do português e for permitido
-  if (idiomasPermitidos.includes(idiomaNavegador)) {
-    document.cookie =
-      "googtrans=/pt/" + idiomaNavegador + ";path=/;max-age=31536000";
-  }
-</script>
-  
-<!-- Google Translate -->
 <script>
   function googleTranslateElementInit() {
     new google.translate.TranslateElement(
-      {
-        pageLanguage: 'pt',
-        includedLanguages: 'en,es,fr,it,de',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
-      },
+      { pageLanguage: 'pt', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
       'google_translate_element'
     );
   }
