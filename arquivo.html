@@ -21,12 +21,26 @@
       border-bottom: 1px solid #2a2d34;
     }
 
-    select {
+    #google_translate_element {
       margin-top: 15px;
+    }
+
+    .goog-te-gadget {
+      color: transparent !important;
+    }
+
+    .goog-te-combo {
       background: #0f1115;
       color: #e6e1d8;
       border: 1px solid #2a2d34;
+      padding: 4px 6px;
       font-family: inherit;
+      font-size: 0.85em;
+    }
+
+    .goog-logo-link,
+    .goog-te-gadget span {
+      display: none !important;
     }
 
     main {
@@ -52,12 +66,10 @@
 <body>
 
 <header>
-  <h1 id="titulo">Poemas Anteriores</h1>
+  <h1>Poemas Anteriores</h1>
 
-  <select id="idioma">
-    <option value="pt">🇧🇷 Português</option>
-    <option value="en">🇬🇧 English</option>
-  </select>
+  <!-- Google Translate -->
+  <div id="google_translate_element"></div>
 
   <br><br>
   <a href="index.html" style="color:#8b6f47;">← Voltar</a>
@@ -67,39 +79,16 @@
 
 <script>
   const DATA_INICIO = new Date(2026, 0, 1);
-  const idioma = localStorage.getItem("idioma") || "pt";
-
-  const UI = {
-    pt: { titulo: "Poemas Anteriores" },
-    en: { titulo: "Previous Poems" }
-  };
-
-  document.getElementById("idioma").value = idioma;
-  document.getElementById("idioma").addEventListener("change", e => {
-    localStorage.setItem("idioma", e.target.value);
-    location.reload();
-  });
-
-  document.getElementById("titulo").textContent = UI[idioma].titulo;
 
   fetch("data/poemas.json")
     .then(res => res.json())
     .then(db => {
-      const textos = db[idioma].poemas.map(p => p.texto);
-
       const hoje = new Date();
+
       const totalDias = Math.max(
         0,
         Math.floor((hoje - DATA_INICIO) / (1000 * 60 * 60 * 24))
       );
-
-      function indicePoemaPorData(data, total) {
-        const seed =
-          data.getFullYear() * 10000 +
-          (data.getMonth() + 1) * 100 +
-          data.getDate();
-        return seed % total;
-      }
 
       const container = document.getElementById("lista-poemas");
 
@@ -107,9 +96,10 @@
         const data = new Date(DATA_INICIO);
         data.setDate(DATA_INICIO.getDate() + i);
 
-        const indice = indicePoemaPorData(data, textos.length);
+        const item = db.dias[i % db.dias.length];
+        const texto = item.pt || "Poema indisponível.";
 
-        const dataFormatada = data.toLocaleDateString(idioma, {
+        const dataFormatada = data.toLocaleDateString("pt-BR", {
           day: "2-digit",
           month: "long",
           year: "numeric"
@@ -119,13 +109,44 @@
         div.className = "poema";
         div.innerHTML = `
           <div class="data">${dataFormatada}</div>
-          <p>${textos[indice]}</p>
+          <p>${texto}</p>
         `;
 
         container.appendChild(div);
       }
     });
 </script>
+
+  <script>
+  // Detecta idioma do navegador (ex: en-US → en)
+  const idiomaNavegador = navigator.language
+    ? navigator.language.substring(0, 2)
+    : "pt";
+
+  // Idiomas que você permite no site
+  const idiomasPermitidos = ["en", "es", "fr", "it", "de"];
+
+  // Se o idioma do usuário for diferente do português e for permitido
+  if (idiomasPermitidos.includes(idiomaNavegador)) {
+    document.cookie =
+      "googtrans=/pt/" + idiomaNavegador + ";path=/;max-age=31536000";
+  }
+  </script>
+  
+<!-- Google Translate -->
+<script>
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement(
+      {
+        pageLanguage: 'pt',
+        includedLanguages: 'en,es,fr,it,de',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      },
+      'google_translate_element'
+    );
+  }
+</script>
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
 </html>
