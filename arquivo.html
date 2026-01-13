@@ -2,25 +2,8 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-
-  <!-- DETECÇÃO AUTOMÁTICA DE IDIOMA -->
-  <script>
-    (function () {
-      const idioma = navigator.language
-        ? navigator.language.substring(0, 2)
-        : "pt";
-
-      const permitidos = ["en", "es", "fr", "it", "de"];
-
-      if (permitidos.includes(idioma)) {
-        document.cookie =
-          "googtrans=/pt/" + idioma + ";path=/;max-age=31536000";
-      }
-    })();
-  </script>
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Poemas Anteriores</title>
+  <title id="page-title"></title>
 
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Crimson+Text&display=swap" rel="stylesheet">
 
@@ -33,27 +16,17 @@
     }
 
     header {
-      padding: 40px;
+      padding: 40px 20px;
       text-align: center;
       border-bottom: 1px solid #2a2d34;
     }
 
-    #google_translate_element {
+    select {
       margin-top: 15px;
-    }
-
-    .goog-te-gadget,
-    .goog-logo-link,
-    .goog-te-gadget span {
-      display: none !important;
-    }
-
-    .goog-te-combo {
       background: #0f1115;
       color: #e6e1d8;
       border: 1px solid #2a2d34;
-      padding: 4px 6px;
-      font-size: 0.85em;
+      font-family: inherit;
     }
 
     main {
@@ -79,50 +52,84 @@
 <body>
 
 <header>
-  <h1>Poemas Anteriores</h1>
-  <div id="google_translate_element"></div>
+  <h1 id="site-title"></h1>
+
+  <select id="idioma">
+    <option value="pt">Português</option>
+    <option value="en">English</option>
+  </select>
+
   <br><br>
-  <a href="index.html" style="color:#8b6f47;">← Voltar</a>
+  <a href="index.html" id="voltar" style="color:#8b6f47;"></a>
 </header>
 
-<main id="lista"></main>
+<main id="lista-poemas"></main>
 
 <script>
   const DATA_INICIO = new Date(2026, 0, 1);
+  const idioma = localStorage.getItem("idioma") || "pt";
+
+  const UI = {
+    pt: {
+      pageTitle: "Poemas Anteriores",
+      siteTitle: "Poemas Anteriores",
+      voltar: "← Voltar",
+      fallback: "Poema indisponível."
+    },
+    en: {
+      pageTitle: "Previous Poems",
+      siteTitle: "Previous Poems",
+      voltar: "← Back",
+      fallback: "Poem unavailable."
+    }
+  };
+
+  document.getElementById("page-title").textContent = UI[idioma].pageTitle;
+  document.getElementById("site-title").textContent = UI[idioma].siteTitle;
+  document.getElementById("voltar").textContent = UI[idioma].voltar;
+
+  document.getElementById("idioma").value = idioma;
+  document.getElementById("idioma").addEventListener("change", e => {
+    localStorage.setItem("idioma", e.target.value);
+    location.reload();
+  });
 
   fetch("data/poemas.json")
-    .then(r => r.json())
+    .then(res => res.json())
     .then(db => {
       const hoje = new Date();
-      const totalDias = db.dias.length - 1;
 
-      const container = document.getElementById("lista");
+      const totalDias = Math.max(
+        0,
+        Math.floor((hoje - DATA_INICIO) / (1000 * 60 * 60 * 24))
+      );
+
+      const container = document.getElementById("lista-poemas");
 
       for (let i = totalDias; i >= 0; i--) {
         const data = new Date(DATA_INICIO);
         data.setDate(DATA_INICIO.getDate() + i);
 
-        container.innerHTML += `
-          <div class="poema">
-            <div class="data">
-              ${data.toLocaleDateString("pt-BR", { day:"2-digit", month:"long", year:"numeric" })}
-            </div>
-            <p>${db.dias[i].pt}</p>
-          </div>
+        const item = db.dias[i % db.dias.length];
+        const texto = item[idioma] || item.pt || UI[idioma].fallback;
+
+        const dataFormatada = data.toLocaleDateString(idioma, {
+          day: "2-digit",
+          month: "long",
+          year: "numeric"
+        });
+
+        const div = document.createElement("div");
+        div.className = "poema";
+        div.innerHTML = `
+          <div class="data">${dataFormatada}</div>
+          <p>${texto}</p>
         `;
+
+        container.appendChild(div);
       }
     });
 </script>
-
-<script>
-  function googleTranslateElementInit() {
-    new google.translate.TranslateElement(
-      { pageLanguage: 'pt', layout: google.translate.TranslateElement.InlineLayout.SIMPLE },
-      'google_translate_element'
-    );
-  }
-</script>
-<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
 </body>
 </html>
